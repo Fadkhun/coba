@@ -3,773 +3,831 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Correct Together - Saling Koreksi Tugas</title>
-    <!-- Tailwind CSS untuk styling instan -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Konfigurasi Tailwind untuk Dark Mode manual
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-    <!-- FontAwesome untuk ikon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Smooth transition untuk perubahan warna */
-        body, div, nav, input, textarea, select, button {
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-        }
-        /* Style untuk panel filter agar overlay di mode mobile */
-        #filter-panel {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
-            padding: 0;
-            position: absolute; /* Default: Position absolute for mobile overlay */
-            top: 100%;
-            left: 0;
-        }
-        #filter-panel.open {
-            max-height: 300px; /* Cukup tinggi untuk menampung konten */
-            opacity: 1;
-            padding: 0.75rem; /* p-3 */
-        }
-        @media (min-width: 1024px) {
-            /* On desktop, keep the panel inline */
-            #filter-panel {
-                position: static; 
-            }
-        }
-    </style>
+    <title>SUSKA.GENZIES</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
-
-    <!-- NAVBAR -->
-    <nav id="navbar" class="bg-indigo-600 dark:bg-indigo-900 text-white shadow-md hidden transition-colors duration-300">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="font-bold text-xl flex items-center gap-2">
-                <i class="fas fa-check-double"></i> Correct Together
-            </div>
-            <div class="hidden md:flex space-x-4">
-                <button onclick="app.navigate('submit')" class="hover:text-indigo-200 transition"><i class="fas fa-plus-circle"></i> Unggah Tugas</button>
-                <button onclick="app.navigate('list')" class="hover:text-indigo-200 transition"><i class="fas fa-list"></i> Daftar & Koreksi</button>
-            </div>
-            <div class="flex items-center gap-4">
-                <!-- Tombol Dark Mode di Navbar -->
-                <button onclick="app.toggleDarkMode()" class="p-2 rounded-full hover:bg-indigo-500 dark:hover:bg-indigo-800 transition" title="Ganti Tema">
-                    <i id="theme-icon" class="fas fa-moon"></i>
-                </button>
-
-                <span id="nav-username" class="font-semibold text-sm bg-indigo-700 dark:bg-indigo-800 px-3 py-1 rounded-full">User</span>
-                <button onclick="app.logout()" class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 rounded text-sm transition shadow-sm" title="Keluar dan Masuk sebagai Pengguna Baru">
-                    <i class="fas fa-sign-out-alt"></i> <span class="hidden sm:inline">Ganti Akun</span>
-                </button>
-            </div>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <img src="https://via.placeholder.com/30/4CAF50/FFFFFF?text=L" alt="SUSKA.GENZIES Logo">
+            <span>SUSKA.GENZIES</span>
         </div>
-        <!-- Mobile Menu -->
-        <div class="md:hidden flex justify-around bg-indigo-700 dark:bg-indigo-800 py-2 text-sm">
-            <button onclick="app.navigate('submit')">Unggah</button>
-            <button onclick="app.navigate('list')">Daftar</button>
+        <nav class="nav-links">
+            <a href="#" class="nav-link active" data-page="home">Home</a>
+            <a href="#" class="nav-link" data-page="discover">Discover</a>
+            <a href="#" class="nav-link" data-page="library">My Library</a>
+            <a href="#" class="nav-link" data-page="duta-gallery">Galeri Duta</a>
+            <a href="#" class="nav-link" data-page="performance">Performance</a>
+        </nav>
+        <div class="auth-buttons">
+            <button class="btn login">Login</button>
+            <button class="btn signup">Sign Up</button>
         </div>
-    </nav>
+    </header>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main id="app-container" class="flex-grow container mx-auto px-4 py-6 relative">
-        
-        <!-- 1. HALAMAN LOGIN -->
-        <div id="view-login" class="fade-in max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg mt-10 hidden relative">
-            <!-- Tombol Dark Mode untuk halaman Login -->
-            <button onclick="app.toggleDarkMode()" class="absolute top-4 right-4 p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition" title="Ganti Tema">
-                <i id="theme-icon-login" class="fas fa-moon"></i>
-            </button>
-            
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                    <i class="fas fa-user-graduate"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-700 dark:text-white">Masuk Kelas</h2>
-                <p class="text-gray-500 dark:text-gray-400 text-sm">Masukkan nama Anda untuk mulai mengerjakan atau mengoreksi.</p>
-            </div>
-            <form onsubmit="app.login(event)">
-                <div class="mb-4">
-                    <label class="block text-sm font-bold mb-2 dark:text-gray-200">Nama Pengguna</label>
-                    <input type="text" id="login-username" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white" placeholder="Contoh: Budi Santoso" required>
-                </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white py-3 rounded-lg font-bold transition">Masuk</button>
-            </form>
-        </div>
-
-        <!-- 2. HALAMAN UNGGAH TUGAS -->
-        <div id="view-submit" class="fade-in max-w-2xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hidden">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b dark:border-gray-700 pb-2"><i class="fas fa-file-upload text-indigo-600 dark:text-indigo-400"></i> Unggah Tugas Baru</h2>
-            <form onsubmit="app.submitTask(event)">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-1 dark:text-gray-300">Nama Lengkap</label>
-                        <input type="text" id="task-name" class="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 dark:text-gray-300 cursor-not-allowed" readonly>
+    <main class="container">
+        <section id="home-page" class="page-content active">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1>Jalur Sukses PTN & TKA</h1>
+                    <p>Eksklusif Podcast Edukatif untuk Pelajar & Mahasiswa Pekanbaru</p>
+                    <div class="category-tabs">
+                        <button class="tab-btn active" data-category="pelajar-sma">Pelajar SMA</button>
+                        <button class="tab-btn" data-category="mahasiswa">Mahasiswa</button>
                     </div>
-                    <!-- FITUR 1: Dropdown Kelas -->
-                    <div>
-                        <label class="block text-sm font-semibold mb-1 dark:text-gray-300">Kelas</label>
-                        <select id="task-class" class="w-full p-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white" required>
-                            <option value="" disabled selected>Pilih Kelas</option>
-                            <!-- Opsi akan diisi oleh JS -->
+                </div>
+                <div class="hero-image">
+                    <img src="https://via.placeholder.com/300x200/4CAF50/FFFFFF?text=Hero+Image" alt="Hero Banner">
+                </div>
+            </div>
+
+            <section class="podcast-schedule">
+                <h2>Jadwal Podcast Terpadu</h2>
+                <div class="schedule-tabs">
+                    <button class="tab-btn schedule-tab active" data-schedule-type="pelajar-sma-schedule">Jadwal Pelajar SMA</button>
+                    <button class="tab-btn schedule-tab" data-schedule-type="mahasiswa-schedule">Jadwal Mahasiswa/Umum</button>
+                </div>
+
+                <div id="pelajar-sma-schedule" class="podcast-list schedule-content active">
+                    <div class="filter-institusi">
+                        <label for="filterSMA">Filter Institusi SMA:</label>
+                        <select id="filterSMA">
+                            <option value="all">Semua</option>
+                            <option value="sman1">SMAN 1 Pekanbaru</option>
+                            <option value="sman5">SMAN 5 Pekanbaru</option>
+                            <option value="smk1">SMK 1 Pekanbaru</option>
                         </select>
                     </div>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-1 dark:text-gray-300">Mata Pelajaran</label>
-                    <select id="task-subject" class="w-full p-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
-                        <option>Agama Islam</option>
-                        <option>Bahasa Indonesia</option>
-                        <option>Bahasa Inggris</option>
-                        <option>Bahasa Jawa</option>
-                        <option>Ilmu Pengetahuan Alam dan Sosial</option>
-                        <option>Informatika</option>
-                        <option>Koding & Kecerdasan Artifisial</option>
-                        <option>Matematika</option>
-                        <option>Pendidikan Jasmani, Olahraga, dan Kesehatan</option>
-                        <option>Pendidikan Pancasila dan Kewarganegaraan</option>
-                        <option>Pengembangan Perangkat Lunak Game</option>
-                        <option>Sejarah</option>
-                        <option>Seni Rupa</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-1 dark:text-gray-300">Judul Tugas</label>
-                    <input type="text" id="task-title" class="w-full p-2 border dark:border-gray-600 rounded focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white" placeholder="Contoh: Esai Peran Pemuda" required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-semibold mb-1 dark:text-gray-300">Isi Tugas (Teks)</label>
-                    <textarea id="task-content" rows="6" class="w-full p-3 border dark:border-gray-600 rounded focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white" placeholder="Tuliskan jawaban atau esai Anda di sini..." required></textarea>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">*Hanya teks yang diperbolehkan.</p>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="app.navigate('list')" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Batal</button>
-                    <button type="submit" class="px-6 py-2 bg-indigo-600 dark:bg-indigo-500 text-white font-bold rounded hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-lg">Kirim Tugas</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- 3. HALAMAN DAFTAR TUGAS & KOREKSI -->
-        <div id="view-list" class="fade-in hidden">
-            <div class="flex justify-between items-end mb-6">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Daftar Tugas Masuk</h2>
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">Pilih tugas temanmu untuk dikoreksi.</p>
-                </div>
-                <button onclick="app.navigate('submit')" class="bg-indigo-600 dark:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-indigo-700 md:hidden"><i class="fas fa-plus"></i> Baru</button>
-            </div>
-
-            <!-- FITUR 3 & 4: Control Panel Filter & Sort -->
-            <div id="control-panel" class="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hidden transition-colors">
-                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 relative">
-                    
-                    <!-- 4. FILTER (Kiri) -->
-                    <div class="lg:col-span-1 relative">
-                        <button onclick="app.toggleFilterPanel()" class="w-full text-left p-2 border dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white bg-gray-100 dark:hover:bg-gray-600 transition flex justify-between items-center">
-                            <span><i class="fas fa-filter mr-2"></i> Filter Kategori</span>
-                            <span id="filter-count" class="text-xs bg-indigo-200 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-200 px-2 rounded-full ml-1">0</span>
-                        </button>
-                        <!-- Collapsible Filter Panel -->
-                        <div id="filter-panel" style="overflow: scroll;" class="hidden mt-2 p-3 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 shadow-xl z-10 w-full lg:w-96">
-                            <!-- PERBAIKAN: Tombol Terapkan dipindah ke atas -->
-                            <button onclick="app.applyFilters()" class="w-full mb-3 bg-indigo-600 text-white text-sm py-2 rounded hover:bg-indigo-700 transition">Terapkan Filter</button>
-                            
-                            <div id="subject-filters" class="mb-3 border-b dark:border-gray-700 pb-2 max-h-40 overflow-y-auto">
-                                <h5 class="font-bold text-sm mb-1 dark:text-gray-300">Mata Pelajaran</h5>
-                                <!-- Checkboxes will be rendered here by JS -->
-                            </div>
-                            <div id="class-filters" class="max-h-40 overflow-y-auto">
-                                <h5 class="font-bold text-sm mb-1 dark:text-gray-300">Kelas</h5>
-                                <!-- Checkboxes will be rendered here by JS -->
-                            </div>
-                            <!-- Tombol yang asli di bawah telah dihapus -->
-                        </div>
+                    <div class="podcast-card live" data-category="pelajar-sma" data-institusi="sman5">
+                        <span class="live-tag">LIVE</span>
+                        <img src="https://via.placeholder.com/200x120?text=Podcast+1" alt="Strategi Jitu SNBT 2025">
+                        <h3>Strategi Jitu SNBT 2025</h3>
+                        <p>Hari Ini, 19.00 WIB | SMAN 5</p>
+                        <button class="btn set-reminder" data-podcast-id="1">Setel Pengingat</button>
+                        <span class="reminder-status hidden">Pengingat Berhasil Diatur!</span>
+                    </div>
+                    <div class="podcast-card" data-category="pelajar-sma" data-institusi="sman1">
+                        <img src="https://via.placeholder.com/200x120?text=Podcast+2" alt="Bedah Jurusanmu, Sarrek">
+                        <h3>Bedah Jurusanmu, Sarrek</h3>
+                        <p>Hari Pasti, Sinta & Ahmad | SMAN 1</p>
+                    </div>
+                    <div class="podcast-card" data-category="pelajar-sma" data-institusi="smk1">
+                        <img src="https://via.placeholder.com/200x120?text=Podcast+3" alt="Trik Institut Sekolah">
+                        <h3>Trik Institut Sekolah</h3>
+                        <p>Kamis, 16.00 WIB | SMK 1</p>
+                    </div>
                     </div>
 
-                    <!-- SEARCH (Tengah) -->
-                    <div class="lg:col-span-2">
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                            <input 
-                                type="text" 
-                                id="assignment-filter" 
-                                placeholder="Cari berdasarkan judul, nama pengunggah..." 
-                                class="w-full pl-10 p-2 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white outline-none transition" 
-                                oninput="app.renderTasks()"
-                            >
-                        </div>
-                    </div>
-
-                    <!-- 3. SORT (Kanan) - Diperbarui: Nama Pengunggah -->
-                    <div class="lg:col-span-1">
-                        <select id="task-sort-by" class="w-full p-2 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white transition" onchange="app.renderTasks()">
-                            <option value="newest" selected>Waktu: Terbaru ke Terlama</option>
-                            <option value="oldest">Waktu: Terlama ke Terbaru</option>
-                            <option value="score_desc">Nilai Rata-rata: Terbesar</option>
-                            <option value="score_asc">Nilai Rata-rata: Terkecil</option>
-                            <option value="author_asc">Pengunggah: A-Z</option>
-                            <option value="author_desc">Pengunggah: Z-A</option>
+                <div id="mahasiswa-schedule" class="podcast-list schedule-content">
+                    <div class="filter-institusi">
+                        <label for="filterKampus">Filter Institusi Kampus:</label>
+                        <select id="filterKampus">
+                            <option value="all">Semua</option>
+                            <option value="uin">UIN Suska Riau</option>
+                            <option value="unri">Universitas Riau</option>
                         </select>
                     </div>
-                </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400 mt-3 flex justify-between items-center border-t dark:border-gray-700 pt-3">
-                    <span id="filter-stats">Menampilkan semua tugas</span>
-                </div>
-            </div>
-            
-            <div id="tasks-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Task Cards will be injected here via JS -->
-            </div>
-            
-            <!-- Empty State -->
-            <div id="empty-state" class="hidden text-center py-20">
-                <div class="text-gray-300 dark:text-gray-600 text-6xl mb-4"><i class="fas fa-folder-open"></i></div>
-                <p class="text-gray-500 dark:text-gray-400 text-lg">Belum ada tugas yang diunggah.</p>
-                <button onclick="app.navigate('submit')" class="mt-4 text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Jadilah yang pertama!</button>
-            </div>
-        </div>
+                    <div class="podcast-card" data-category="mahasiswa" data-institusi="uin">
+                        <img src="https://via.placeholder.com/200x120?text=Podcast+4" alt="Organisasi vs Akademik?">
+                        <h3>Organisasi vs Akademik?</h3>
+                        <p>Senin, 10.00 WIB | UIN Suska</p>
+                    </div>
+                    <div class="podcast-card" data-category="mahasiswa" data-institusi="unri">
+                        <img src="https://via.placeholder.com/200x120?text=Podcast+5" alt="Kiat Skripsi Cepat">
+                        <h3>Kiat Skripsi Cepat</h3>
+                        <p>Selasa, 14.00 WIB | UNRI</p>
+                    </div>
+                    </div>
+            </section>
+        </section>
 
+        <section id="duta-gallery-page" class="page-content">
+            <h2>Galeri Duta Lestari Radio</h2>
+            <div class="category-tabs duta-category-tabs">
+                <button class="tab-btn active" data-duta-category="duta-pelajar">Duta Pelajar (SMA/SMK)</button>
+                <button class="tab-btn" data-duta-category="duta-kampus">Duta Kampus (Mahasiswa)</button>
+            </div>
+            <div class="duta-gallery-list">
+                <div class="duta-profile-card" data-duta-category="duta-pelajar" data-institusi="sman5">
+                    <img src="https://via.placeholder.com/100x100?text=Duta+SMA1" alt="Duta Pelajar 1">
+                    <h3>Sinta Dewi</h3>
+                    <p>SMAN 5 Pekanbaru</p>
+                    <p class="specialization">Spesialisasi: Persiapan SNBT, Tips Belajar Efektif</p>
+                </div>
+                <div class="duta-profile-card" data-duta-category="duta-pelajar" data-institusi="sman1">
+                    <img src="https://via.placeholder.com/100x100?text=Duta+SMA2" alt="Duta Pelajar 2">
+                    <h3>Ahmad Fahmi</h3>
+                    <p>SMAN 1 Pekanbaru</p>
+                    <p class="specialization">Spesialisasi: TKA Matematika, Membangun Portofolio</p>
+                </div>
+                <div class="duta-profile-card" data-duta-category="duta-kampus" data-institusi="uin">
+                    <img src="https://via.placeholder.com/100x100?text=Duta+UIN1" alt="Duta Kampus 1">
+                    <h3>Putri Nuraini</h3>
+                    <p>UIN Suska Riau</p>
+                    <p class="specialization">Spesialisasi: Hidup Mahasiswa, Beasiswa</p>
+                </div>
+                <div class="duta-profile-card" data-duta-category="duta-kampus" data-institusi="unri">
+                    <img src="https://via.placeholder.com/100x100?text=Duta+UNRI1" alt="Duta Kampus 2">
+                    <h3>Rizky Pratama</h3>
+                    <p>Universitas Riau</p>
+                    <p class="specialization">Spesialisasi: Karir Lulusan, Magang</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="performance-page" class="page-content">
+            <h2>Analitik Duta Dashboard</h2>
+            <p>Selamat datang, Duta! Berikut adalah statistik performa konten Anda.</p>
+            <div class="analytics-card">
+                <h4>Total Pendengar</h4>
+                <p>12,345</p>
+            </div>
+            <div class="analytics-card">
+                <h4>Durasi Dengar Rata-rata</h4>
+                <p>25 menit</p>
+            </div>
+            <div class="analytics-card">
+                <h4>Sumber Trafik Utama</h4>
+                <ul>
+                    <li>Spotify: 60%</li>
+                    <li>Website: 30%</li>
+                    <li>Lainnya: 10%</li>
+                </ul>
+            </div>
+            </section>
     </main>
 
-    <!-- FOOTER & RESET -->
-    <footer class="bg-white dark:bg-gray-800 border-t dark:border-gray-700 py-6 mt-8 transition-colors">
-        <div class="container mx-auto px-4 text-center">
-            <button onclick="app.resetData()" class="text-red-500 text-sm border border-red-200 dark:border-red-900/30 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition">
-                <i class="fas fa-trash-alt"></i> Reset Semua Data (Dev Mode)
-            </button>
-            <p class="text-gray-400 dark:text-gray-500 text-xs mt-2">Websait Correct Together &copy; 2025. Berjalan di LocalStorage.</p>
+    <aside class="sidebar">
+        <div class="sidebar-section">
+            <h4>Temukan Lebih Lanjut</h4>
+            <ul>
+                <li><a href="#">Hebrica</a></li>
+                <li><a href="#">Kategori</a></li>
+                <li><a href="#">Rategrai</a></li>
+                <li><a href="#">Setiapi</a></li>
+            </ul>
         </div>
-    </footer>
+        <div class="sidebar-section">
+            <h4>Duta Kami</h4>
+            <div class="duta-list">
+                <div class="duta-item">
+                    <img src="https://via.placeholder.com/30/FF5733?text=D1" alt="Duta 1">
+                    <span>Nama Duta 1</span>
+                </div>
+                <div class="duta-item">
+                    <img src="https://via.placeholder.com/30/33FF57?text=D2" alt="Duta 2">
+                    <span>Nama Duta 2</span>
+                </div>
+            </div>
+        </aside>
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        const app = {
-            // === STATE MANAGEMENT ===
-            currentUser: null,
-            dataKey: 'Correct Together_tasks',
-            userKey: 'Correct Together_user',
-            themeKey: 'Correct Together_theme',
-            
-            // FITUR 1: Daftar kelas tetap
-            predefinedClasses: ['X PPLG 1', 'X PPLG 2', 'XI PPLG 1', 'XI PPLG 2', 'XII PPLG 1','XII PPLG 2'],
-
-            init: function() {
-                this.initTheme();
-                const savedUser = localStorage.getItem(this.userKey);
-                if (savedUser) {
-                    this.currentUser = savedUser;
-                    this.navigate('list');
-                } else {
-                    this.navigate('login');
-                }
-                this.updateUI();
-            },
-
-            // === THEME ACTIONS ===
-            initTheme: function() {
-                const savedTheme = localStorage.getItem(this.themeKey);
-                const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                
-                if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-                this.updateThemeIcon();
-            },
-
-            toggleDarkMode: function() {
-                document.documentElement.classList.toggle('dark');
-                const isDark = document.documentElement.classList.contains('dark');
-                localStorage.setItem(this.themeKey, isDark ? 'dark' : 'light');
-                this.updateThemeIcon();
-            },
-
-            updateThemeIcon: function() {
-                const iconNav = document.getElementById('theme-icon');
-                const iconLogin = document.getElementById('theme-icon-login'); 
-                const isDark = document.documentElement.classList.contains('dark');
-                
-                const iconClass = isDark ? 'fas fa-sun text-yellow-300' : 'fas fa-moon';
-                
-                if (iconNav) { iconNav.className = iconClass; }
-                if (iconLogin) { iconLogin.className = isDark ? 'fas fa-sun' : 'fas fa-moon'; }
-            },
-
-            // === NAVIGATION ===
-            navigate: function(viewName) {
-                document.getElementById('view-login').classList.add('hidden');
-                document.getElementById('view-submit').classList.add('hidden');
-                document.getElementById('view-list').classList.add('hidden');
-                document.getElementById('navbar').classList.add('hidden');
-
-                if (viewName === 'login') {
-                    document.getElementById('view-login').classList.remove('hidden');
-                    this.updateThemeIcon();
-                } else {
-                    document.getElementById('navbar').classList.remove('hidden');
-                    if (viewName === 'submit') {
-                        document.getElementById('view-submit').classList.remove('hidden');
-                        document.getElementById('task-name').value = this.currentUser;
-                        this.populateClassOptions(); // FITUR 1: Isi dropdown kelas
-                    } else if (viewName === 'list') {
-                        document.getElementById('view-list').classList.remove('hidden');
-                        this.populateFilterOptions(); // FITUR 4: Isi filter options
-                        this.renderTasks(); 
-                        document.getElementById('filter-panel').classList.remove('open', 'relative'); // Tutup filter saat navigasi
-                    }
-                }
-            },
-            
-            // FITUR 1: Helper untuk mengisi opsi kelas
-            populateClassOptions: function() {
-                const selectEl = document.getElementById('task-class');
-                if (selectEl) {
-                    selectEl.innerHTML = '<option value="" disabled selected>Pilih Kelas</option>'; 
-                    this.predefinedClasses.forEach(className => {
-                        const option = document.createElement('option');
-                        option.value = className;
-                        option.textContent = className;
-                        selectEl.appendChild(option);
-                    });
-                }
-            },
-
-            // === AUTH & DATA ACTIONS ===
-            login: function(e) {
-                e.preventDefault();
-                const username = document.getElementById('login-username').value.trim();
-                if (username) {
-                    this.currentUser = username;
-                    localStorage.setItem(this.userKey, username);
-                    this.navigate('list');
-                    this.updateUI();
-                }
-            },
-
-            logout: function() {
-                if(confirm(`Halo ${this.currentUser}, apakah Anda ingin keluar dan ganti akun?\n\n(Tenang saja, semua data tugas tetap tersimpan di browser ini)`)) {
-                    this.currentUser = null;
-                    localStorage.removeItem(this.userKey);
-                    const loginInput = document.getElementById('login-username');
-                    if (loginInput) loginInput.value = '';
-                    this.navigate('login');
-                }
-            },
-
-            updateUI: function() {
-                if (this.currentUser) {
-                    document.getElementById('nav-username').textContent = this.currentUser;
-                }
-            },
-
-            getTasks: function() {
-                const tasks = localStorage.getItem(this.dataKey);
-                return tasks ? JSON.parse(tasks) : [];
-            },
-
-            saveTasks: function(tasks) {
-                localStorage.setItem(this.dataKey, JSON.stringify(tasks));
-            },
-
-            submitTask: function(e) {
-                e.preventDefault();
-                
-                const newTask = {
-                    id: Date.now(),
-                    author: this.currentUser,
-                    class: document.getElementById('task-class').value, // Now from dropdown
-                    subject: document.getElementById('task-subject').value,
-                    title: document.getElementById('task-title').value,
-                    content: document.getElementById('task-content').value,
-                    corrections: [], 
-                    timestamp: new Date().toLocaleString('id-ID')
-                };
-
-                const tasks = this.getTasks();
-                tasks.unshift(newTask);
-                this.saveTasks(tasks);
-
-                e.target.reset();
-                alert('Tugas berhasil diunggah!');
-                this.navigate('list');
-            },
-
-            // FITUR 2: Update submitCorrection untuk edit limit
-            submitCorrection: function(taskId) {
-                const comment = document.getElementById(`comment-${taskId}`).value;
-                const score = document.getElementById(`score-${taskId}`).value;
-
-                if (!comment || !score) {
-                    alert("Harap isi komentar dan nilai.");
-                    return;
-                }
-
-                const tasks = this.getTasks();
-                const taskIndex = tasks.findIndex(t => t.id === taskId);
-
-                if (taskIndex > -1) {
-                    // Cek duplikat (Perbaikan 1)
-                    const existingCorrection = tasks[taskIndex].corrections.find(c => c.reviewer === this.currentUser);
-                    if (existingCorrection) {
-                        alert("Anda sudah memberikan koreksi untuk tugas ini. Setiap pengguna hanya boleh mengoreksi 1x per tugas.");
-                        return;
-                    }
-
-                    const correction = {
-                        reviewer: this.currentUser,
-                        comment: comment,
-                        score: score,
-                        timestamp: new Date().toLocaleString('id-ID'),
-                        submissionTime: Date.now(), // NEW: Waktu Unix timestamp untuk limit 5 menit
-                        editCount: 0, // NEW: Hitungan edit (max 1)
-                        isEditing: false // NEW: Status sementara untuk UI
-                    };
-                    
-                    tasks[taskIndex].corrections.push(correction);
-                    this.saveTasks(tasks);
-                    
-                    this.renderTasks(); // Re-render setelah submit
-                    
-                    alert("Koreksi berhasil dikirim!");
-                }
-            },
-            
-            // FITUR 2: Masuk mode edit
-            enterEditMode: function(taskId, correctionIndex) {
-                const tasks = this.getTasks();
-                const taskIndex = tasks.findIndex(t => t.id === taskId);
-                if (taskIndex > -1) {
-                    tasks[taskIndex].corrections[correctionIndex].isEditing = true;
-                    this.saveTasks(tasks);
-                    this.renderTasks(); 
-                }
-            },
-
-            // FITUR 2: Batal mode edit
-            cancelEditMode: function(taskId, correctionIndex) {
-                const tasks = this.getTasks();
-                const taskIndex = tasks.findIndex(t => t.id === taskId);
-                if (taskIndex > -1) {
-                    tasks[taskIndex].corrections[correctionIndex].isEditing = false;
-                    this.saveTasks(tasks);
-                    this.renderTasks(); 
-                }
-            },
-
-            // FITUR 2: Simpan koreksi yang diedit
-            saveEditedCorrection: function(taskId, correctionIndex) {
-                const newComment = document.getElementById(`edit-comment-${taskId}-${correctionIndex}`).value;
-                const newScore = document.getElementById(`edit-score-${taskId}-${correctionIndex}`).value;
-                
-                if (!newComment || !newScore) {
-                    alert("Komentar dan nilai harus diisi.");
-                    return;
-                }
-                
-                const tasks = this.getTasks();
-                const taskIndex = tasks.findIndex(t => t.id === taskId);
-                
-                if (taskIndex > -1) {
-                    const correction = tasks[taskIndex].corrections[correctionIndex];
-                    
-                    correction.comment = newComment;
-                    correction.score = parseInt(newScore);
-                    correction.editCount = correction.editCount + 1; // Mark as edited (max 1)
-                    correction.isEditing = false; // Exit edit mode
-                    
-                    this.saveTasks(tasks);
-                    this.renderTasks(); 
-                    alert("Koreksi berhasil diperbarui.");
-                }
-            },
-            
-            // FITUR 2: Helper untuk rendering koreksi + tombol edit
-            getCorrectionHtml: function(task, correction, index) {
-                const isReviewer = correction.reviewer === this.currentUser;
-                const timePassed = Date.now() - correction.submissionTime;
-                const canEdit = isReviewer && correction.editCount === 0 && timePassed <= (5 * 60 * 1000); // 5 menit limit
-                
-                let editButtonHtml = '';
-                if (canEdit) {
-                    editButtonHtml = `<button onclick="app.enterEditMode(${task.id}, ${index})" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline ml-2">Edit (5m)</button>`;
-                } else if (isReviewer && correction.editCount > 0) {
-                     editButtonHtml = `<span class="text-xs text-red-500 dark:text-red-400 ml-2">(Sudah diedit)</span>`;
-                } else if (isReviewer && timePassed > (5 * 60 * 1000)) {
-                     editButtonHtml = `<span class="text-xs text-gray-500 dark:text-gray-400 ml-2">(Batas waktu habis)</span>`;
-                }
-
-                // Mode Edit Form
-                if (correction.isEditing) {
-                    return `
-                        <div id="correction-edit-form-${task.id}-${index}" class="text-xs bg-indigo-50 dark:bg-indigo-900/30 dark:border-indigo-800 p-2 rounded border border-indigo-100 transition-colors">
-                            <h5 class="font-bold text-sm mb-1 text-indigo-800 dark:text-indigo-300">Edit Koreksi Anda</h5>
-                            <div class="flex gap-2 mb-2">
-                                <input type="text" id="edit-comment-${task.id}-${index}" value="${correction.comment.replace(/"/g, '&quot;')}" placeholder="Komentar perbaikan..." class="flex-grow p-1 border dark:border-gray-600 rounded text-xs focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
-                                <input type="number" id="edit-score-${task.id}-${index}" value="${correction.score}" placeholder="Nilai" min="0" max="100" class="w-16 p-1 border dark:border-gray-600 rounded text-xs focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
-                            </div>
-                            <div class="flex justify-end gap-2">
-                                <button onclick="app.cancelEditMode(${task.id}, ${index})" class="text-xs text-gray-500 hover:text-gray-700">Batal</button>
-                                <button onclick="app.saveEditedCorrection(${task.id}, ${index})" class="text-xs bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700 transition">Simpan Edit</button>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                // Mode Display Normal
-                return `
-                    <div id="correction-display-${task.id}-${index}" class="text-xs bg-blue-50 dark:bg-blue-900/30 dark:border-blue-800 p-2 rounded border border-blue-100 transition-colors">
-                        <div class="flex justify-between mb-1">
-                            <span class="font-bold text-blue-800 dark:text-blue-300">${correction.reviewer} ${editButtonHtml}</span>
-                            <span class="font-bold text-indigo-600 dark:text-indigo-300 bg-white dark:bg-gray-700 px-1 rounded border dark:border-gray-600">Nilai: ${correction.score}</span>
-                        </div>
-                        <p class="text-gray-600 dark:text-gray-300">"${correction.comment}"</p>
-                    </div>
-                `;
-            },
-            
-            resetData: function() {
-                if(confirm("PERINGATAN: Ini akan menghapus SEMUA tugas dan data login di browser ini. Lanjutkan?")) {
-                    localStorage.clear();
-                    location.reload();
-                }
-            },
-
-            // FITUR 4: Helper untuk mendapatkan daftar mapel unik
-            getAvailableSubjects: function(tasks) {
-                const subjects = new Set(tasks.map(t => t.subject));
-                return Array.from(subjects).sort();
-            },
-
-            // FITUR 4: Isi filter options
-            populateFilterOptions: function() {
-                const tasks = this.getTasks();
-                const subjects = this.getAvailableSubjects(tasks);
-                const classes = this.predefinedClasses; 
-                
-                const subjectFilterEl = document.getElementById('subject-filters');
-                const classFilterEl = document.getElementById('class-filters');
-                
-                const createCheckbox = (type, value) => {
-                    // Simpan status checkbox
-                    const storedFilters = JSON.parse(localStorage.getItem('Correct Together_filters') || '{}');
-                    const isChecked = (storedFilters[type] || []).includes(value) ? 'checked' : '';
-
-                    return `
-                        <label class="flex items-center text-sm dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                            <input type="checkbox" name="${type}" value="${value}" class="h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 rounded mr-2 dark:bg-gray-700" onchange="app.updateFilterCount()">
-                            ${value}
-                        </label>
-                    `;
-                };
-
-                // --- Subject Filter ---
-                subjectFilterEl.innerHTML = '<h5 class="font-bold text-sm mb-1 dark:text-gray-300">Mata Pelajaran</h5>';
-                subjects.forEach(subject => { subjectFilterEl.innerHTML += createCheckbox('subject', subject); });
-
-                // --- Class Filter ---
-                classFilterEl.innerHTML = '<h5 class="font-bold text-sm mb-1 dark:text-gray-300 mt-2">Kelas</h5>';
-                classes.forEach(className => { classFilterEl.innerHTML += createCheckbox('class', className); });
-                
-                this.updateFilterCount(); // Set initial count
-            },
-
-            // FITUR 4: Update hitungan filter
-            updateFilterCount: function() {
-                const checked = document.querySelectorAll('#filter-panel input[type="checkbox"]:checked').length;
-                document.getElementById('filter-count').textContent = checked;
-            },
-            
-            // FITUR 4: Toggle filter panel
-            toggleFilterPanel: function() {
-                const panel = document.getElementById('filter-panel');
-                panel.classList.toggle('hidden');
-                panel.classList.toggle('open');
-            },
-
-            // FITUR 4: Terapkan filter
-            applyFilters: function() {
-                const subjects = Array.from(document.querySelectorAll('input[name="subject"]:checked')).map(el => el.value);
-                const classes = Array.from(document.querySelectorAll('input[name="class"]:checked')).map(el => el.value);
-
-                // Simpan filter ke localStorage
-                localStorage.setItem('Correct Together_filters', JSON.stringify({ subject: subjects, class: classes }));
-
-                document.getElementById('filter-panel').classList.remove('open', 'relative');
-                document.getElementById('filter-panel').classList.add('hidden');
-                this.renderTasks();
-            },
-
-            // === RENDERING with Filtering and Sorting ===
-            renderTasks: function() {
-                const allTasks = this.getTasks();
-                const container = document.getElementById('tasks-container');
-                const emptyState = document.getElementById('empty-state');
-                const controlPanel = document.getElementById('control-panel');
-                const statsEl = document.getElementById('filter-stats');
-
-                const filterText = document.getElementById('assignment-filter').value.toLowerCase();
-                const sortBy = document.getElementById('task-sort-by').value;
-                const storedFilters = JSON.parse(localStorage.getItem('Correct Together_filters') || '{}');
-                const checkedSubjects = storedFilters.subject || [];
-                const checkedClasses = storedFilters.class || [];
-                
-                // --- 1. Filtering by Search Text ---
-                let filteredTasks = allTasks.filter(task => 
-                    task.title.toLowerCase().includes(filterText) ||
-                    task.author.toLowerCase().includes(filterText)
-                );
-                
-                // --- 2. Filtering by Checkbox (Mata Pelajaran & Kelas) ---
-                if (checkedSubjects.length > 0) {
-                    filteredTasks = filteredTasks.filter(task => checkedSubjects.includes(task.subject));
-                }
-
-                if (checkedClasses.length > 0) {
-                    filteredTasks = filteredTasks.filter(task => checkedClasses.includes(task.class));
-                }
-
-                // --- 3. Sorting Logic (Perbaikan 2: Nama Pengunggah) ---
-                const sortedTasks = filteredTasks.sort((a, b) => {
-                    // Helper untuk menghitung nilai rata-rata
-                    const getAvgScore = (task) => {
-                        // Jika tidak ada koreksi, berikan nilai ekstrem agar mudah disortir
-                        if (task.corrections.length === 0) return sortBy.includes('desc') ? -1 : 101; 
-                        const total = task.corrections.reduce((sum, c) => sum + parseInt(c.score), 0);
-                        return Math.round(total / task.corrections.length);
-                    };
-
-                    if (sortBy === 'newest') return b.id - a.id;
-                    if (sortBy === 'oldest') return a.id - b.id;
-                    
-                    const scoreA = getAvgScore(a);
-                    const scoreB = getAvgScore(b);
-
-                    if (sortBy === 'score_desc') return scoreB - scoreA;
-                    if (sortBy === 'score_asc') return scoreA - scoreB;
-
-                    // Sorting berdasarkan Nama Pengunggah
-                    if (sortBy === 'author_asc') return a.author.localeCompare(b.author);
-                    if (sortBy === 'author_desc') return b.author.localeCompare(a.author);
-
-                    return 0;
-                });
-                
-                container.innerHTML = '';
-
-                // Kondisi 1: Belum ada tugas sama sekali
-                if (allTasks.length === 0) {
-                    emptyState.classList.remove('hidden');
-                    controlPanel.classList.add('hidden');
-                    statsEl.textContent = 'Belum ada tugas.';
-                    return;
-                } else {
-                    emptyState.classList.add('hidden');
-                    controlPanel.classList.remove('hidden');
-                }
-
-                // Update statistik
-                const totalActiveFilters = checkedSubjects.length + checkedClasses.length;
-                const activeFiltersText = totalActiveFilters > 0 ? ` + ${totalActiveFilters} filter aktif` : '';
-                statsEl.textContent = `Menampilkan ${sortedTasks.length} dari ${allTasks.length} tugas${activeFiltersText}`;
-
-                // Kondisi 2: Tugas tidak cocok dengan pencarian/filter
-                if (sortedTasks.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-span-1 lg:col-span-2 text-center py-10 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
-                            <i class="fas fa-filter mb-3 text-3xl text-gray-300 dark:text-gray-600"></i>
-                            <p>Tidak ditemukan tugas yang cocok dengan kriteria pencarian/filter Anda.</p>
-                            <button onclick="document.getElementById('assignment-filter').value=''; app.renderTasks()" class="text-indigo-600 dark:text-indigo-400 text-sm mt-2 hover:underline">Hapus pencarian</button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Render Kartu Tugas
-                sortedTasks.forEach(task => {
-                    const isMyTask = task.author === this.currentUser;
-                    // PERBAIKAN 1: Cek apakah pengguna sudah mengoreksi tugas ini
-                    const hasCorrected = task.corrections.some(c => c.reviewer === this.currentUser);
-                    
-                    let avgScore = '-';
-                    if (task.corrections.length > 0) {
-                        const total = task.corrections.reduce((sum, c) => sum + parseInt(c.score), 0);
-                        avgScore = Math.round(total / task.corrections.length);
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-colors duration-300';
-                    
-                    let html = `
-                        <div class="p-5 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-between items-start transition-colors">
-                            <div>
-                                <div class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-1">${task.subject} • ${task.class}</div>
-                                <h3 class="font-bold text-xl text-gray-800 dark:text-gray-100 leading-tight">${task.title}</h3>
-                                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Oleh: <span class="font-medium text-gray-700 dark:text-gray-300">${task.author}</span> <span class="text-xs ml-2">• ${task.timestamp}</span></div>
-                            </div>
-                            <div class="text-center bg-white dark:bg-gray-800 p-2 rounded border dark:border-gray-600 shadow-sm transition-colors">
-                                <div class="text-xs text-gray-400">Rata-rata</div>
-                                <div class="font-bold text-xl text-indigo-600 dark:text-indigo-400">${avgScore}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="p-5">
-                            <div class="bg-gray-50 dark:bg-gray-700 dark:text-gray-200 p-4 rounded border dark:border-gray-600 text-gray-700 text-sm mb-4 whitespace-pre-wrap max-h-40 overflow-y-auto transition-colors">${task.content}</div>
-                            
-                            <!-- Bagian List Koreksi -->
-                            <div class="mb-4">
-                                <h4 class="font-bold text-sm text-gray-700 dark:text-gray-300 mb-2"><i class="fas fa-comments"></i> Hasil Koreksi (${task.corrections.length})</h4>
-                                <div class="space-y-2 max-h-40 overflow-y-auto">
-                                    ${task.corrections.length === 0 ? '<p class="text-xs text-gray-400 italic">Belum ada koreksi.</p>' : ''}
-                                    ${task.corrections.map((c, idx) => this.getCorrectionHtml(task, c, idx)).join('')}
-                                </div>
-                            </div>
-
-                            <!-- Form Koreksi (Disembunyikan jika tugas sendiri atau sudah dikoreksi) -->
-                            ${isMyTask ? 
-                                `<div class="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-200 p-2 rounded text-sm text-center border border-yellow-200 dark:border-yellow-800 transition-colors">
-                                    <i class="fas fa-info-circle"></i> Ini adalah tugas Anda. Biarkan teman yang mengoreksi.
-                                </div>` 
-                                : hasCorrected ? 
-                                `<div class="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200 p-2 rounded text-sm text-center border border-blue-200 dark:border-blue-800 transition-colors">
-                                    <i class="fas fa-check-circle"></i> Anda sudah memberikan koreksi untuk tugas ini.
-                                </div>`
-                                :
-                                `<div class="mt-4 pt-4 border-t dark:border-gray-700">
-                                    <h4 class="font-bold text-sm text-gray-700 dark:text-gray-300 mb-2">Beri Koreksi</h4>
-                                    <div class="flex gap-2 mb-2">
-                                        <input type="text" id="comment-${task.id}" placeholder="Komentar perbaikan..." class="flex-grow p-2 border dark:border-gray-600 rounded text-sm focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white transition-colors">
-                                        <input type="number" id="score-${task.id}" placeholder="Nilai" min="0" max="100" class="w-20 p-2 border dark:border-gray-600 rounded text-sm focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white transition-colors">
-                                    </div>
-                                    <button onclick="app.submitCorrection(${task.id})" class="w-full bg-indigo-600 dark:bg-indigo-500 text-white py-2 rounded text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">Kirim Koreksi</button>
-                                </div>`
-                            }
-                        </div>
-                    `;
-                    
-                    card.innerHTML = html;
-                    container.appendChild(card);
-                });
-            }
-        };
-
-        // Mulai
-        document.addEventListener('DOMContentLoaded', () => {
-            app.init();
-        });
-        
-        // Atur interval untuk re-render setiap 30 detik untuk cek batas waktu edit (FITUR 2)
-        setInterval(() => {
-            if (document.getElementById('view-list').classList.contains('hidden')) return;
-            app.renderTasks();
-        }, 30000);
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
+```
+
+**Catatan HTML:**
+
+  * Setiap halaman (`home-page`, `duta-gallery-page`, `performance-page`) kini memiliki `id` dan kelas `page-content`. Hanya satu yang `active` pada satu waktu.
+  * Link navigasi di header memiliki `data-page` yang sesuai untuk dikontrol JavaScript.
+  * Bagian Jadwal Podcast sekarang memiliki dua `div` terpisah (`pelajar-sma-schedule`, `mahasiswa-schedule`) yang akan di-toggle visibilitasnya.
+  * Fitur Filter Institusi ditambahkan dengan `<select>` dropdown.
+  * Galeri Duta (`duta-gallery-list`) memiliki `duta-profile-card` dengan kategori `data-duta-category` dan `data-institusi` serta detail.
+  * Analitik Duta (`performance-page`) adalah bagian baru yang akan disembunyikan secara default.
+
+**2. CSS Dasar (style.css)**
+
+Saya akan menambahkan gaya untuk fitur-fitur baru dan modifikasi yang diperlukan.
+
+```css
+/* General Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex-grow: 1;
+    max-width: 1200px;
+    margin: 20px auto;
+    gap: 20px;
+    padding: 0 15px; /* Add padding for smaller screens */
+}
+
+/* Page Content Management */
+.page-content {
+    display: none; /* Hide all pages by default */
+    flex: 3; /* Main content takes more space */
+    background-color: #2a2a2a;
+    padding: 20px 30px;
+    border-radius: 10px;
+}
+
+.page-content.active {
+    display: block; /* Show active page */
+    display: flex; /* Use flex for internal layout if needed */
+    flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #222;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+}
+
+.navbar .logo img {
+    height: 30px;
+    margin-right: 10px;
+    border-radius: 5px; /* Added for placeholder logo */
+}
+
+.navbar .logo span {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4CAF50; /* Green color for brand */
+}
+
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 16px;
+    transition: color 0.3s ease;
+    position: relative;
+    padding-bottom: 5px; /* For active indicator */
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: #4CAF50;
+}
+
+.nav-links a.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #4CAF50;
+}
+
+
+.auth-buttons .btn {
+    background-color: transparent;
+    border: 1px solid #4CAF50;
+    color: #4CAF50;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+.auth-buttons .btn.login:hover {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.auth-buttons .btn.signup {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.auth-buttons .btn.signup:hover {
+    background-color: #3e8e41;
+}
+
+/* Hero Section */
+.hero-section {
+    background-color: #2a2a2a;
+    padding: 40px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    /* Removed ::before for simpler styling, you can add it back with a background image */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 60%;
+}
+
+.hero-content h1 {
+    font-size: 3em;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    font-size: 1.2em;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.hero-image img {
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.category-tabs {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.tab-btn {
+    background-color: #333;
+    color: #e0e0e0;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab-btn.active {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.tab-btn:hover:not(.active) {
+    background-color: #555;
+}
+
+/* Podcast Schedule & Schedule Tabs */
+.podcast-schedule {
+    /* flex: 3; Already handled by .page-content */
+    background-color: #2a2a2a; /* Redundant if .page-content has it */
+    padding: 20px; /* Redundant if .page-content has it */
+    border-radius: 10px; /* Redundant if .page-content has it */
+    margin-top: 20px;
+}
+
+.podcast-schedule h2 {
+    font-size: 1.8em;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.schedule-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.schedule-tabs .tab-btn {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border-radius: 5px;
+}
+
+.podcast-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    /* Removed display: block here, now controlled by JS with flex for cards */
+}
+
+.podcast-list.schedule-content {
+    display: none;
+}
+
+.podcast-list.schedule-content.active {
+    display: grid; /* Use grid for active content */
+}
+
+.podcast-card {
+    background-color: #333;
+    border-radius: 10px;
+    overflow: hidden;
+    padding-bottom: 15px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.podcast-card img {
+    width: 100%;
+    height: 120px; /* Fixed height for consistency */
+    object-fit: cover;
+    display: block;
+}
+
+.podcast-card h3 {
+    font-size: 1.1em;
+    color: #fff;
+    margin: 10px 15px 5px;
+}
+
+.podcast-card p {
+    font-size: 0.9em;
+    color: #aaa;
+    margin: 0 15px 10px;
+}
+
+.podcast-card.live .live-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #e74c3c; /* Red */
+    color: white;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.podcast-card .set-reminder {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    display: block;
+    width: calc(100% - 30px);
+    margin: 0 15px 5px;
+    transition: background-color 0.3s ease;
+}
+
+.podcast-card .set-reminder:hover {
+    background-color: #3e8e41;
+}
+
+.podcast-card .reminder-status {
+    font-size: 0.8em;
+    color: #4CAF50;
+    text-align: center;
+    display: block;
+    margin: 5px 15px 0;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Filter Institusi */
+.filter-institusi {
+    margin-bottom: 20px;
+}
+
+.filter-institusi label {
+    margin-right: 10px;
+    font-size: 0.95em;
+}
+
+.filter-institusi select {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+/* Duta Gallery Page */
+#duta-gallery-page h2 {
+    font-size: 2em;
+    color: #fff;
+    margin-bottom: 25px;
+}
+
+.duta-category-tabs {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.duta-gallery-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.duta-profile-card {
+    background-color: #333;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    display: none; /* Hidden by default, shown by JS */
+}
+
+.duta-profile-card.active {
+    display: block;
+}
+
+.duta-profile-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #4CAF50;
+}
+
+.duta-profile-card h3 {
+    font-size: 1.3em;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.duta-profile-card p {
+    font-size: 0.9em;
+    color: #aaa;
+    margin-bottom: 5px;
+}
+
+.duta-profile-card .specialization {
+    font-style: italic;
+    font-size: 0.85em;
+    color: #888;
+}
+
+/* Performance Dashboard */
+#performance-page h2 {
+    font-size: 2em;
+    color: #fff;
+    margin-bottom: 25px;
+}
+
+.analytics-card {
+    background-color: #333;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.analytics-card h4 {
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.analytics-card p {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.analytics-card ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.analytics-card ul li {
+    margin-bottom: 5px;
+    color: #ccc;
+}
+
+/* Sidebar */
+.sidebar {
+    flex: 1;
+    background-color: #2a2a2a;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.sidebar-section {
+    margin-bottom: 30px;
+}
+
+.sidebar-section h4 {
+    font-size: 1.4em;
+    color: #fff;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.sidebar-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-section ul li {
+    margin-bottom: 10px;
+}
+
+.sidebar-section ul li a {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 1em;
+    transition: color 0.3s ease;
+}
+
+.sidebar-section ul li a:hover {
+    color: #4CAF50;
+}
+
+.duta-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.duta-item {
+    display: flex;
+    align-items: center;
+    background-color: #333;
+    padding: 8px 12px;
+    border-radius: 20px;
+    color: #e0e0e0;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.duta-item:hover {
+    background-color: #4CAF50;
+}
+
+.duta-item img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 8px;
+    object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        padding: 15px 20px;
+    }
+    .nav-links {
+        margin-top: 15px;
+        display: flex; /* Make nav links stack or scroll */
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
+    .nav-links a {
+        margin: 5px 10px;
+        padding: 5px 0;
+    }
+    .auth-buttons {
+        margin-top: 15px;
+    }
+    .container {
+        flex-direction: column;
+        margin: 10px auto;
+        padding: 0;
+    }
+    .hero-section {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+    .hero-content {
+        max-width: 100%;
+    }
+    .hero-content h1 {
+        font-size: 2em;
+    }
+    .hero-content p {
+        font-size: 1em;
+    }
+    .hero-image {
+        margin-top: 20px;
+    }
+    .hero-image img {
+        max-width: 200px;
+    }
+    .sidebar {
+        order: -1; /* Move sidebar above main content on mobile */
+        margin-bottom: 20px;
+    }
+    .page-content {
+        padding: 15px;
+    }
+    .podcast-list {
+        grid-template-columns: 1fr; /* Stack cards vertically */
+    }
+    .duta-gallery-list {
+        grid-template-columns: 1fr;
+    }
+    .duta-profile-card {
+        padding: 15px;
+    }
+}
+```
+
+**Catatan CSS:**
+
+  * `page-content` dengan `display: none` dan `display: block` atau `display: grid` untuk kelas `active` mengelola tampilan halaman.
+  * Gaya baru untuk `schedule-tabs`, `filter-institusi`, `duta-gallery-list`, `duta-profile-card`, dan `analytics-card` ditambahkan.
+  * Beberapa penyesuaian responsif ditambahkan untuk pengalaman mobile yang lebih baik.
+
+**3. JavaScript Interaktivitas (script.js)**
+
+Saya akan memperbarui JavaScript untuk mengelola pergantian halaman, tab jadwal, filter institusi, dan tab galeri duta.
+
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Page Navigation ---
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pageContents = document.querySelectorAll('.page-content');
+
+    function showPage(pageId) {
+        pageContents.forEach(page => {
+            page.classList.remove('active');
+            page.style.display = 'none'; // Ensure it's fully hidden
+        });
+        const activePage = document.getElementById(pageId);
+        if (activePage) {
+            activePage.classList.add('active');
+            activePage.style.display = 'flex'; // Or 'block' if it's not a flex container
+            if (pageId === 'home-page') { // Ensure hero content is visible on home
+                document.querySelector('.hero-section').style.display = 'flex';
+            } else {
+                // For other pages, hide hero content if it's not relevant
+                const hero = document.querySelector('.hero-section');
+                if(hero) hero.style.display = 'none';
+            }
+        }
+        navLinks.forEach(link => link.classList.remove('active'));
+        document.querySelector(`.nav-link[data-page="${pageId.replace('-page', '')}"]`).classList.add('active');
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = link.dataset.page + '-page';
+            showPage(pageId);
+        });
+    });
+
+    // Show home page by default
+    showPage('home-page');
+
+    // --- Podcast Category Tab Switching (Hero Section) ---
+    const heroCategoryTabs = document.querySelectorAll('.hero-section .category-tabs .tab-btn');
+    const allPodcastCards = document.querySelectorAll('.podcast-list .podcast-card');
+
+    heroCategoryTabs.forEach(button => {
+        button.addEventListener('click', () => {
+            heroCategoryTabs.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            const selectedCategory = button.dataset.category;
+
+            allPodcastCards.forEach(card => {
+                const cardCategory = card.dataset.category;
+                if (cardCategory === selectedCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Trigger initial category filter for hero section on load
+    const initialHeroCategory = document.querySelector('.hero-section .category-tabs .tab-btn.active');
+    if (initialHeroCategory) {
+        initialHeroCategory.click();
+    }
+
+
+    // --- Jadwal Podcast Terpadu Tab Switching ---
+    const scheduleTabs = document.querySelectorAll('.schedule-tabs .schedule-tab');
+    const scheduleContents = document.querySelectorAll('.schedule-content');
+
+    function showScheduleTab(tabId) {
+        scheduleContents.forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(tabId).classList.add('active');
+
+        scheduleTabs.forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.schedule-tab[data-schedule
